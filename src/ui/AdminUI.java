@@ -30,6 +30,7 @@ public class AdminUI {
         this.paymentService = new PaymentServiceImpl();
     }
 
+    // Initialize the main dashboard with TabPane navigation
     public void start(Stage stage) {
         stage.setTitle("Admin Dashboard - Main Office");
 
