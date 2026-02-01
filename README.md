@@ -25,7 +25,7 @@ Technologies Used
 
  No Spring
  No Hibernate
- No Maven or Gradle
+
 
 
  User Roles
