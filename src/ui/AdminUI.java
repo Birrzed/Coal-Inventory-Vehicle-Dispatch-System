@@ -87,7 +87,7 @@ public class AdminUI {
 
         Button payButton = new Button("Process Payment");
         payButton.setStyle(
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 5;");
+                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 10;");
 
         Button refreshButton = new Button("Refresh");
         refreshButton.setStyle(
