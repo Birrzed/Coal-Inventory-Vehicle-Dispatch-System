@@ -3,7 +3,6 @@ package ui;
 import dao.UserDAO;
 import model.User;
 import service.DispatchService;
-import service.impl.DispatchServiceImpl;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
