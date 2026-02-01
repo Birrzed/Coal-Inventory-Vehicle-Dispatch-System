@@ -50,7 +50,7 @@ public class AdminUI {
         root.getChildren().addAll(tabPane);
         root.setStyle("-fx-background-color: #2c3e50;");
         tabPane.setStyle("-fx-background-color: transparent;");
-        root.setStyle("-fx-background-color: #2c3e50;");
+
         tabPane.setStyle("-fx-background-color: transparent;");
 
         Scene scene = new Scene(root, 800, 600);
