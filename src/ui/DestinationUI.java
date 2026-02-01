@@ -25,6 +25,7 @@ public class DestinationUI {
     public void start(Stage stage) {
         stage.setTitle("Destination Dashboard - " + currentUser.getUsername());
 
+        // Dynamic title based on authenticated user session
         Label titleLabel = new Label("Incoming Dispatches");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10;");
 
