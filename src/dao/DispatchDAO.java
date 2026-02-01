@@ -51,6 +51,86 @@ public class DispatchDAO {
                 }
             }
 
+            public void updateStatus(int dispatchId, String status) {
+                String sql = "UPDATE dispatch SET status = ? WHERE id = ?";
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, status);
+                    stmt.setInt(2, dispatchId);
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            public List<Dispatch> getDispatchesByRole(String role, int userId) {
+                List<Dispatch> list = new ArrayList<>();
+                String sql = "";
+
+                switch (role) {
+                    case "Seller":
+                        sql = "SELECT * FROM dispatch WHERE seller_id = ?";
+                        break;
+                    case "Transporter":
+                        sql = "SELECT * FROM dispatch WHERE transporter_id = ?";
+                        break;
+                    case "Destination":
+                        sql = "SELECT * FROM dispatch WHERE destination_id = ?";
+                        break;
+                    case "Admin":
+                        sql = "SELECT * FROM dispatch";
+                        break;
+                }
+
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                    if (!role.equals("Admin")) {
+                        stmt.setInt(1, userId);
+                    }
+
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()) {
+                        list.add(new Dispatch(
+                                rs.getInt("id"),
+                                rs.getDouble("product_mass"),
+                                rs.getDate("dispatch_date"),
+                                rs.getDate("confirm_date"),
+                                rs.getDate("arrival_date"),
+                                rs.getInt("seller_id"),
+                                rs.getInt("transporter_id"),
+                                rs.getInt("destination_id"),
+                                rs.getString("status")));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return list;
+            }
+
+            public Dispatch getDispatchById(int id) {
+                String sql = "SELECT * FROM dispatch WHERE id = ?";
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, id);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        return new Dispatch(
+                                rs.getInt("id"),
+                                rs.getDouble("product_mass"),
+                                rs.getDate("dispatch_date"),
+                                rs.getDate("confirm_date"),
+                                rs.getDate("arrival_date"),
+                                rs.getInt("seller_id"),
+                                rs.getInt("transporter_id"),
+                                rs.getInt("destination_id"),
+                                rs.getString("status"));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+
         }
 
 
