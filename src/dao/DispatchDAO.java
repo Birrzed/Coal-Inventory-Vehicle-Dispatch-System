@@ -23,7 +23,7 @@ public class DispatchDAO {
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
-            }
+            }}
 
             public void updateConfirmDate(int dispatchId, Date date) {
                 String sql = "UPDATE dispatch SET confirm_date = ?, status = 'In Transit' WHERE id = ?";
