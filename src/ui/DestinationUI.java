@@ -29,6 +29,7 @@ public class DestinationUI {
         Label titleLabel = new Label("Incoming Dispatches");
         titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10;");
 
+        // Configuration for incoming dispatch data display
         TableView<Dispatch> table = new TableView<>();
 
         TableColumn<Dispatch, Integer> idCol = new TableColumn<>("ID");
