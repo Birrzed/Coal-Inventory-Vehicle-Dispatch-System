@@ -10,6 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import service.impl.DispatchServiceImpl;
+
 import java.util.List;
 
 public class SellerUI {
