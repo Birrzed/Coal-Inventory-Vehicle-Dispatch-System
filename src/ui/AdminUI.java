@@ -168,6 +168,7 @@ public class AdminUI {
             table.setItems(FXCollections.observableArrayList(payments));
             double total = payments.stream().mapToDouble(Payment::getAmount).sum();
             totalLabel.setText("Total Paid Amount: " + String.format("%.2f", total) + " ETB");
+            System.out.println("Payment reports refreshed.");
         };
 
         refreshButton.setOnAction(e -> updateTotal.run());
