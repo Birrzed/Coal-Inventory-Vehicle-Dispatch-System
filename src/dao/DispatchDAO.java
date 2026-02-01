@@ -37,6 +37,20 @@ public class DispatchDAO {
                     e.printStackTrace();
                 }
             }
+
+            public void updateArrivalDate(int dispatchId, Date date) {
+                String sql = "UPDATE dispatch SET arrival_date = ?, status = 'Delivered' WHERE id = ?";
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                    stmt.setDate(1, date);
+                    stmt.setInt(2, dispatchId);
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
 
 
