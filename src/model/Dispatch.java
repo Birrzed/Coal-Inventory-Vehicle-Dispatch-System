@@ -11,7 +11,7 @@ public class Dispatch {
     private int sellerId;
     private int transporterId;
     private int destinationId;
-    private String status;
+    public String status;
 
     public Dispatch(int id, double productMass, Date dispatchDate, Date confirmDate, Date arrivalDate,
                     int sellerId, int transporterId, int destinationId, String status) {
