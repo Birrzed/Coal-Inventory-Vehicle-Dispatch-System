@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DispatchDAO {
-    public class DispatchDAO {
+
 
         public void createDispatch(Dispatch dispatch) {
             String sql = "INSERT INTO dispatch (product_mass, dispatch_date, seller_id, transporter_id, destination_id, status) VALUES (?, ?, ?, ?, ?, ?)";
@@ -134,4 +134,4 @@ public class DispatchDAO {
         }
 
 
-}
+
