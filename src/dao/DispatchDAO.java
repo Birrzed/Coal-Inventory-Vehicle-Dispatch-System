@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DispatchDAO {
-    public class DispatchDAO {
+
 
         public void createDispatch(Dispatch dispatch) {
             String sql = "INSERT INTO dispatch (product_mass, dispatch_date, seller_id, transporter_id, destination_id, status) VALUES (?, ?, ?, ?, ?, ?)";
@@ -23,7 +23,7 @@ public class DispatchDAO {
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
-            }
+            }}
 
             public void updateConfirmDate(int dispatchId, Date date) {
                 String sql = "UPDATE dispatch SET confirm_date = ?, status = 'In Transit' WHERE id = ?";
@@ -131,7 +131,7 @@ public class DispatchDAO {
                 }
                 return null;
 
-        }
+        }}
 
 
-}
+

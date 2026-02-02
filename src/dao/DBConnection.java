@@ -1,15 +1,14 @@
 package dao;
 
-// Utility class for managing database connections
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
+    // ⚠️ CHANGE THESE CREDENTIALS TO MATCH YOUR LOCAL MYSQL CONFIG ⚠️
     private static final String URL = "jdbc:mysql://localhost:3306/dispatch_system";
     private static final String USER = "root";
-    private static final String PASSWORD = "1$isBest";
+    private static final String PASSWORD = "1$isBest"; // Empty by default for many local XAMPP/WAMP setups
 
     private static Connection connection = null;
 
@@ -29,6 +28,4 @@ public class DBConnection {
         }
         return connection;
     }
-}
-
 }
