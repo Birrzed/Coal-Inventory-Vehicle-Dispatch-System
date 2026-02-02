@@ -62,12 +62,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void confirmPaymentReceipt(int paymentId) {
-        paymentDAO.updatePaymentStatus(paymentId, "Received");
+    public List<Payment> getPaymentsForTransporter(int transporterId) {
+        return paymentDAO.getPaymentsForTransporter(transporterId);
     }
 
     @Override
-    public List<Payment> getTransporterPayments(int transporterId) {
-        return paymentDAO.getPaymentsByTransporter(transporterId);
+    public void confirmPaymentReceipt(int paymentId) {
+        paymentDAO.updatePaymentStatus(paymentId, "Received");
     }
 }
