@@ -34,6 +34,16 @@ public class DispatchServiceImpl implements DispatchService {
     }
 
     @Override
+    public void deleteDispatch(int id) {
+        dispatchDAO.deleteDispatch(id);
+    }
+
+    @Override
+    public void disapproveDispatch(int id) {
+        dispatchDAO.updateStatus(id, "Disapproved");
+    }
+
+    @Override
     public List<Dispatch> getDispatchesForUser(String role, int userId) {
         return dispatchDAO.getDispatchesByRole(role, userId);
     }
