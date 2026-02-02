@@ -12,9 +12,18 @@ public class Dispatch {
     private int transporterId;
     private int destinationId;
     private String status;
+    private String transporterName;
+    private String destinationName;
 
     public Dispatch(int id, double productMass, Date dispatchDate, Date confirmDate, Date arrivalDate,
                     int sellerId, int transporterId, int destinationId, String status) {
+        this(id, productMass, dispatchDate, confirmDate, arrivalDate, sellerId, transporterId, destinationId, status,
+                null, null);
+    }
+
+    public Dispatch(int id, double productMass, Date dispatchDate, Date confirmDate, Date arrivalDate,
+                    int sellerId, int transporterId, int destinationId, String status, String transporterName,
+                    String destinationName) {
         this.id = id;
         this.productMass = productMass;
         this.dispatchDate = dispatchDate;
@@ -24,6 +33,8 @@ public class Dispatch {
         this.transporterId = transporterId;
         this.destinationId = destinationId;
         this.status = status;
+        this.transporterName = transporterName;
+        this.destinationName = destinationName;
     }
 
     // Getters and Setters
@@ -97,5 +108,21 @@ public class Dispatch {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTransporterName() {
+        return transporterName;
+    }
+
+    public void setTransporterName(String transporterName) {
+        this.transporterName = transporterName;
+    }
+
+    public String getDestinationName() {
+        return destinationName;
+    }
+
+    public void setDestinationName(String destinationName) {
+        this.destinationName = destinationName;
     }
 }

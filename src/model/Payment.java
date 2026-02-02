@@ -8,13 +8,19 @@ public class Payment {
     private double amount;
     private Date paymentDate;
     private String status;
+    private String transporterName;
 
     public Payment(int id, int dispatchId, double amount, Date paymentDate, String status) {
+        this(id, dispatchId, amount, paymentDate, status, null);
+    }
+
+    public Payment(int id, int dispatchId, double amount, Date paymentDate, String status, String transporterName) {
         this.id = id;
         this.dispatchId = dispatchId;
         this.amount = amount;
         this.paymentDate = paymentDate;
         this.status = status;
+        this.transporterName = transporterName;
     }
 
     public int getId() {
@@ -55,5 +61,13 @@ public class Payment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTransporterName() {
+        return transporterName;
+    }
+
+    public void setTransporterName(String transporterName) {
+        this.transporterName = transporterName;
     }
 }
