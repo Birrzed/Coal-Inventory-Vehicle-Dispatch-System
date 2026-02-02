@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -30,11 +31,11 @@ public class AdminUI {
         this.paymentService = new PaymentServiceImpl();
     }
 
-    // Initialize the main dashboard with TabPane navigation
     public void start(Stage stage) {
         stage.setTitle("Admin Dashboard - Main Office");
 
         TabPane tabPane = new TabPane();
+        tabPane.setStyle("-fx-background-color: transparent;");
 
         // --- Tab 1: Dispatch Management ---
         Tab dispatchTab = new Tab("Dispatches", createDispatchView(stage));
@@ -47,25 +48,25 @@ public class AdminUI {
         tabPane.getTabs().addAll(dispatchTab, paymentTab);
 
         VBox root = new VBox(10);
+        root.setStyle(StyleHelper.MAIN_BG);
+        root.setPadding(new Insets(20));
         root.getChildren().addAll(tabPane);
-        root.setStyle("-fx-background-color: #2c3e50;");
-        tabPane.setStyle("-fx-background-color: transparent;");
 
-        tabPane.setStyle("-fx-background-color: transparent;");
-
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 700);
         stage.setScene(scene);
         stage.show();
     }
 
     private VBox createDispatchView(Stage stage) {
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(20));
+        box.setStyle(StyleHelper.GLASS_PANEL);
 
-        Label lbl = new Label("All Dispatches");
-        lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: white; -fx-padding: 10;");
+        Label lbl = new Label("Dispatch Management");
+        lbl.setStyle(StyleHelper.HEADER_TEXT);
 
         TableView<Dispatch> table = new TableView<>();
+        table.setStyle(StyleHelper.TABLE_STYLE);
 
         TableColumn<Dispatch, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -82,40 +83,65 @@ public class AdminUI {
         TableColumn<Dispatch, String> statusCol = new TableColumn<>("Status");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        table.getColumns().addAll(idCol, massCol, dateCol1, dateCol2, statusCol);
+        TableColumn<Dispatch, String> transCol = new TableColumn<>("Transporter");
+        transCol.setCellValueFactory(new PropertyValueFactory<>("transporterName"));
+
+        TableColumn<Dispatch, String> destCol = new TableColumn<>("Destination");
+        destCol.setCellValueFactory(new PropertyValueFactory<>("destinationName"));
+
+        table.getColumns().addAll(idCol, massCol, dateCol1, dateCol2, transCol, destCol, statusCol);
         table.setItems(FXCollections.observableArrayList(dispatchService.getAllDispatches()));
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        HBox actions = new HBox(15);
+        actions.setAlignment(Pos.CENTER_LEFT);
 
         Button payButton = new Button("Process Payment");
-        payButton.setStyle(
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 10;");
+        payButton.setStyle(StyleHelper.BUTTON_PRIMARY);
+
+        Button deleteButton = new Button("Delete Dispatch");
+        deleteButton.setStyle(StyleHelper.BUTTON_DANGER);
 
         Button refreshButton = new Button("Refresh");
-        refreshButton.setStyle(
-                "-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 5;");
+        refreshButton.setStyle(StyleHelper.BUTTON_SECONDARY);
 
         Button logoutButton = new Button("Logout");
-        logoutButton.setStyle(
-                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 5;");
+        logoutButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+
+        actions.getChildren().addAll(payButton, deleteButton, refreshButton, logoutButton);
 
         Label msg = new Label();
-        msg.setStyle("-fx-text-fill: white;");
+        msg.setStyle(StyleHelper.NORMAL_TEXT);
 
         payButton.setOnAction(e -> {
             Dispatch selected = table.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 msg.setText("Select a dispatch.");
+                msg.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
             if (!"Delivered".equals(selected.getStatus())) {
                 msg.setText("Only 'Delivered' dispatches can be paid.");
+                msg.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
             paymentService.calculateAndProcessPayment(selected.getId());
-            msg.setText("Payment Processed! Check the 'Payments' tab.");
-            msg.setStyle("-fx-text-fill: green;");
+            msg.setText("Payment Processed & Status Completed!");
+            msg.setStyle("-fx-text-fill: #22c55e;");
+            table.setItems(FXCollections.observableArrayList(dispatchService.getAllDispatches()));
+        });
 
-            // Refresh Both Tables
+        deleteButton.setOnAction(e -> {
+            Dispatch selected = table.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                msg.setText("Select a dispatch to delete.");
+                msg.setStyle("-fx-text-fill: #ef4444;");
+                return;
+            }
+            dispatchService.deleteDispatch(selected.getId());
+            msg.setText("Dispatch Deleted!");
+            msg.setStyle("-fx-text-fill: #22c55e;");
             table.setItems(FXCollections.observableArrayList(dispatchService.getAllDispatches()));
         });
 
@@ -124,18 +150,20 @@ public class AdminUI {
 
         logoutButton.setOnAction(e -> new LoginUI().start(stage));
 
-        box.getChildren().addAll(lbl, table, payButton, refreshButton, msg, logoutButton);
+        box.getChildren().addAll(lbl, table, actions, msg);
         return box;
     }
 
     private VBox createPaymentView() {
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(20));
+        box.setStyle(StyleHelper.GLASS_PANEL);
 
         Label lbl = new Label("Processed Payments");
-        lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: white;");
+        lbl.setStyle(StyleHelper.HEADER_TEXT);
 
         TableView<Payment> table = new TableView<>();
+        table.setStyle(StyleHelper.TABLE_STYLE);
 
         TableColumn<Payment, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -149,34 +177,38 @@ public class AdminUI {
         TableColumn<Payment, Date> dateCol = new TableColumn<>("Payment Date");
         dateCol.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
 
+        TableColumn<Payment, String> transCol = new TableColumn<>("Transporter");
+        transCol.setCellValueFactory(new PropertyValueFactory<>("transporterName"));
+
         TableColumn<Payment, String> statusCol = new TableColumn<>("Status");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        table.getColumns().addAll(idCol, dispCol, amtCol, dateCol, statusCol);
+        table.getColumns().addAll(idCol, dispCol, amtCol, dateCol, transCol, statusCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Label totalLabel = new Label();
-        totalLabel.setStyle(
-                "-fx-font-weight: bold; -fx-text-fill: #2ecc71; -fx-font-size: 18px; -fx-padding: 10; -fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 10;");
+        Label totalAmountLabel = new Label("Total Revenue: 0.00 ETB");
+        totalAmountLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #22c55e;");
 
-        Button refreshButton = new Button("Refresh");
-        refreshButton.setStyle(
-                "-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 5;");
-
-        // Helper to update total
-        Runnable updateTotal = () -> {
-            List<Payment> payments = paymentService.getAllPayments();
-            table.setItems(FXCollections.observableArrayList(payments));
-            double total = payments.stream().mapToDouble(Payment::getAmount).sum();
-            totalLabel.setText("Total Paid Amount: " + String.format("%.2f", total) + " ETB");
-            System.out.println("Payment reports refreshed.");
-        };
-
-        refreshButton.setOnAction(e -> updateTotal.run());
+        Button refreshButton = new Button("Refresh Data");
+        refreshButton.setStyle(StyleHelper.BUTTON_SECONDARY);
 
         // Initial load
-        updateTotal.run();
+        List<Payment> allPayments = paymentService.getAllPayments();
+        table.setItems(FXCollections.observableArrayList(allPayments));
+        updateTotalLabel(totalAmountLabel, allPayments);
 
-        box.getChildren().addAll(lbl, table, totalLabel, refreshButton);
+        refreshButton.setOnAction(e -> {
+            List<Payment> updatedPayments = paymentService.getAllPayments();
+            table.setItems(FXCollections.observableArrayList(updatedPayments));
+            updateTotalLabel(totalAmountLabel, updatedPayments);
+        });
+
+        box.getChildren().addAll(lbl, table, totalAmountLabel, refreshButton);
         return box;
+    }
+
+    private void updateTotalLabel(Label label, List<Payment> payments) {
+        double total = payments.stream().mapToDouble(Payment::getAmount).sum();
+        label.setText(String.format("Total Revenue: %,.2f ETB", total));
     }
 }
