@@ -3,18 +3,21 @@ package ui;
 import model.Dispatch;
 import model.User;
 import service.DispatchService;
-import service.PaymentService;
 import service.impl.DispatchServiceImpl;
-import service.impl.PaymentServiceImpl;
-import model.Payment;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.Payment;
+import service.PaymentService;
+import service.impl.PaymentServiceImpl;
+import java.sql.Date;
+import java.util.List;
 
 public class TransporterUI {
     private User currentUser;
@@ -31,27 +34,38 @@ public class TransporterUI {
         stage.setTitle("Transporter Dashboard - " + currentUser.getUsername());
 
         TabPane tabPane = new TabPane();
+        tabPane.setStyle("-fx-background-color: transparent;");
 
-        // Tab 1: Dispatches
-        Tab dispatchTab = new Tab("Assigned Dispatches", createDispatchView(stage));
+        Tab dispatchTab = new Tab("Dispatch Management");
         dispatchTab.setClosable(false);
+        dispatchTab.setContent(createDispatchView(stage));
 
-        // Tab 2: Payments
-        Tab paymentTab = new Tab("My Payments", createPaymentView());
+        Tab paymentTab = new Tab("Payment Status");
         paymentTab.setClosable(false);
+        paymentTab.setContent(createPaymentView());
 
         tabPane.getTabs().addAll(dispatchTab, paymentTab);
 
-        Scene scene = new Scene(tabPane, 700, 550);
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(20));
+        root.setStyle(StyleHelper.MAIN_BG);
+        root.getChildren().addAll(tabPane);
+
+        Scene scene = new Scene(root, 1000, 700);
         stage.setScene(scene);
         stage.show();
     }
 
     private VBox createDispatchView(Stage stage) {
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(30));
+        box.setStyle(StyleHelper.GLASS_PANEL);
+
         Label titleLabel = new Label("Assigned Dispatches");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        titleLabel.setStyle(StyleHelper.HEADER_TEXT);
 
         TableView<Dispatch> table = new TableView<>();
+        table.setStyle(StyleHelper.TABLE_STYLE);
 
         TableColumn<Dispatch, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -63,17 +77,27 @@ public class TransporterUI {
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         table.getColumns().addAll(idCol, massCol, statusCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        HBox actions = new HBox(15);
+        actions.setAlignment(Pos.CENTER);
 
         Button confirmButton = new Button("Confirm Receipt (Start Transport)");
-        confirmButton.setStyle(
-                "-fx-background-color: #f1c40f; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 10;");
+        confirmButton.setStyle(StyleHelper.BUTTON_PRIMARY);
+
+        Button disapproveButton = new Button("Disapprove Dispatch");
+        disapproveButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+
+        Button deleteButton = new Button("Delete Dispatch");
+        deleteButton.setStyle(StyleHelper.BUTTON_DANGER);
 
         Button logoutButton = new Button("Logout");
-        logoutButton.setStyle(
-                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 10;");
+        logoutButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+
+        actions.getChildren().addAll(confirmButton, disapproveButton, deleteButton, logoutButton);
 
         Label msgLabel = new Label();
-        msgLabel.setStyle("-fx-text-fill: white;");
+        msgLabel.setStyle(StyleHelper.NORMAL_TEXT);
 
         refreshTable(table);
 
@@ -81,84 +105,135 @@ public class TransporterUI {
             Dispatch selected = table.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 msgLabel.setText("Please select a dispatch.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
             if (!"Pending".equals(selected.getStatus())) {
                 msgLabel.setText("Only 'Pending' dispatches can be confirmed.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
             dispatchService.confirmDispatch(selected.getId());
             msgLabel.setText("Dispatch Confirmed! In Transit.");
-            msgLabel.setStyle("-fx-text-fill: green;");
+            msgLabel.setStyle("-fx-text-fill: #22c55e;");
+            refreshTable(table);
+        });
+
+        disapproveButton.setOnAction(e -> {
+            Dispatch selected = table.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                msgLabel.setText("Please select a dispatch.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
+                return;
+            }
+
+            if (!"Pending".equals(selected.getStatus())) {
+                msgLabel.setText("Only 'Pending' dispatches can be disapproved.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
+                return;
+            }
+
+            dispatchService.disapproveDispatch(selected.getId());
+            msgLabel.setText("Dispatch Disapproved!");
+            msgLabel.setStyle("-fx-text-fill: #f59e0b;");
+            refreshTable(table);
+        });
+
+        deleteButton.setOnAction(e -> {
+            Dispatch selected = table.getSelectionModel().getSelectedItem();
+            if (selected == null) {
+                msgLabel.setText("Please select a dispatch.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
+                return;
+            }
+
+            if (!"Pending".equals(selected.getStatus())) {
+                msgLabel.setText("Only 'Pending' dispatches can be deleted.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
+                return;
+            }
+
+            dispatchService.deleteDispatch(selected.getId());
+            msgLabel.setText("Dispatch Deleted!");
+            msgLabel.setStyle("-fx-text-fill: #ef4444;");
             refreshTable(table);
         });
 
         logoutButton.setOnAction(e -> new LoginUI().start(stage));
 
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(20));
-        root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(titleLabel, table, confirmButton, msgLabel, logoutButton);
-        root.setStyle("-fx-background-color: #2c3e50;");
-        titleLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
-
-        return root;
+        box.getChildren().addAll(titleLabel, table, actions, msgLabel);
+        return box;
     }
 
     private VBox createPaymentView() {
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
-        box.setAlignment(Pos.CENTER);
+        VBox box = new VBox(20);
+        box.setPadding(new Insets(30));
+        box.setStyle(StyleHelper.GLASS_PANEL);
 
-        Label lbl = new Label("My Payments");
-        lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: white;");
+        Label titleLabel = new Label("My Payments");
+        titleLabel.setStyle(StyleHelper.HEADER_TEXT);
 
         TableView<Payment> table = new TableView<>();
+        table.setStyle(StyleHelper.TABLE_STYLE);
 
-        TableColumn<Payment, Integer> dispCol = new TableColumn<>("Dispatch ID");
-        dispCol.setCellValueFactory(new PropertyValueFactory<>("dispatchId"));
+        TableColumn<Payment, Integer> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
 
         TableColumn<Payment, Double> amtCol = new TableColumn<>("Amount (ETB)");
         amtCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
 
+        TableColumn<Payment, Date> dateCol = new TableColumn<>("Date");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("paymentDate"));
+
         TableColumn<Payment, String> statusCol = new TableColumn<>("Status");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        table.getColumns().addAll(dispCol, amtCol, statusCol);
-        table.setItems(FXCollections.observableArrayList(paymentService.getTransporterPayments(currentUser.getId())));
+        table.getColumns().addAll(idCol, amtCol, dateCol, statusCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        Button confirmBtn = new Button("Confirm Receipt of Payment");
-        confirmBtn.setStyle(
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 20;");
+        Label totalLabel = new Label("Total Earned: 0.00 ETB");
+        totalLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #22c55e;");
 
-        Label msg = new Label();
-        msg.setStyle("-fx-text-fill: white;");
+        Button confirmBtn = new Button("Confirm Payment Received");
+        confirmBtn.setStyle(StyleHelper.BUTTON_PRIMARY);
+
+        Label msgLabel = new Label();
+        msgLabel.setStyle(StyleHelper.NORMAL_TEXT);
+
+        // Initial Load
+        refreshPaymentTable(table, totalLabel);
 
         confirmBtn.setOnAction(e -> {
             Payment selected = table.getSelectionModel().getSelectedItem();
             if (selected == null) {
-                msg.setText("Select a payment.");
+                msgLabel.setText("Please select a payment.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
+
             if (!"Paid".equals(selected.getStatus())) {
-                msg.setText("Payment is already confirmed.");
+                msgLabel.setText("Payment already confirmed or in other status.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
             paymentService.confirmPaymentReceipt(selected.getId());
-            msg.setText("Payment of " + selected.getAmount() + " ETB Confirmed as Received!");
-            msg.setStyle("-fx-text-fill: green;");
-            table.setItems(
-                    FXCollections.observableArrayList(paymentService.getTransporterPayments(currentUser.getId())));
+            msgLabel.setText("Payment Receipt Confirmed!");
+            msgLabel.setStyle("-fx-text-fill: #22c55e;");
+            refreshPaymentTable(table, totalLabel);
         });
 
-        box.getChildren().addAll(lbl, table, confirmBtn, msg);
-        box.setStyle("-fx-background-color: #2c3e50;");
+        box.getChildren().addAll(titleLabel, table, totalLabel, confirmBtn, msgLabel);
         return box;
+    }
+
+    private void refreshPaymentTable(TableView<Payment> table, Label totalLabel) {
+        List<Payment> payments = paymentService.getPaymentsForTransporter(currentUser.getId());
+        table.setItems(FXCollections.observableArrayList(payments));
+        double total = payments.stream().mapToDouble(Payment::getAmount).sum();
+        totalLabel.setText(String.format("Total Earned: %,.2f ETB", total));
     }
 
     private void refreshTable(TableView<Dispatch> table) {

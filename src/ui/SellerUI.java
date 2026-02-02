@@ -2,16 +2,19 @@ package ui;
 
 import dao.UserDAO;
 import model.User;
+import model.Dispatch;
 import service.DispatchService;
+import service.impl.DispatchServiceImpl;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import service.impl.DispatchServiceImpl;
-
+import java.util.Date;
 import java.util.List;
 
 public class SellerUI {
@@ -28,80 +31,110 @@ public class SellerUI {
     public void start(Stage stage) {
         stage.setTitle("Seller Dashboard - " + currentUser.getUsername());
 
-        Label titleLabel = new Label("Create New Dispatch");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10;");
+        Label titleLabel = new Label("Create Dispatch Record");
+        titleLabel.setStyle(StyleHelper.HEADER_TEXT);
 
         // Form Fields
-        Label massLabel = new Label("Product Mass (tons):");
+        Label massLabel = new Label("Product Mass (Tons)");
+        massLabel.setStyle(StyleHelper.LABEL_STYLE);
         TextField massField = new TextField();
+        massField.setPromptText("Enter mass...");
+        massField.setStyle(StyleHelper.TEXT_FIELD);
 
-        Label transLabel = new Label("Select Transporter:");
+        Label transLabel = new Label("Select Transporter");
+        transLabel.setStyle(StyleHelper.LABEL_STYLE);
         ComboBox<String> transCombo = new ComboBox<>();
+        transCombo.setPromptText("Choose transporter...");
+        transCombo.setStyle(StyleHelper.TEXT_FIELD);
+        transCombo.setMaxWidth(Double.MAX_VALUE);
+
         List<User> transporters = userDAO.getUsersByRole("Transporter");
-        for (User u : transporters)
+        for (User u : transporters) {
             transCombo.getItems().add(u.getId() + ": " + u.getUsername());
+        }
 
-        Label destLabel = new Label("Select Destination:");
+        Label destLabel = new Label("Select Destination");
+        destLabel.setStyle(StyleHelper.LABEL_STYLE);
         ComboBox<String> destCombo = new ComboBox<>();
-        List<User> destinations = userDAO.getUsersByRole("Destination");
-        for (User u : destinations)
-            destCombo.getItems().add(u.getId() + ": " + u.getUsername());
+        destCombo.setPromptText("Choose destination...");
+        destCombo.setStyle(StyleHelper.TEXT_FIELD);
+        destCombo.setMaxWidth(Double.MAX_VALUE);
 
-        Button createButton = new Button("Create Dispatch");
-        createButton.setStyle(
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5;");
+        List<User> destinations = userDAO.getUsersByRole("Destination");
+        for (User u : destinations) {
+            destCombo.getItems().add(u.getId() + ": " + u.getUsername());
+        }
+
+        Button submitButton = new Button("Submit Dispatch");
+        submitButton.setStyle(StyleHelper.BUTTON_PRIMARY);
+        submitButton.setMaxWidth(Double.MAX_VALUE);
 
         Button logoutButton = new Button("Logout");
-        logoutButton.setStyle(
-                "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 5;");
+        logoutButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
 
         Label msgLabel = new Label();
-        msgLabel.setStyle("-fx-text-fill: white;");
+        msgLabel.setStyle(StyleHelper.NORMAL_TEXT);
 
-        massLabel.setStyle("-fx-text-fill: #ecf0f1;");
-        transLabel.setStyle("-fx-text-fill: #ecf0f1;");
-        destLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        VBox formCard = new VBox(15);
+        formCard.setStyle(StyleHelper.GLASS_PANEL);
+        formCard.setPrefWidth(300);
+        formCard.getChildren().addAll(titleLabel, massLabel, massField, transLabel, transCombo, destLabel, destCombo,
+                submitButton, logoutButton, msgLabel);
 
-        // Layout
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setAlignment(Pos.CENTER);
+        // Sidebar / Form on the left, Table on the right
+        VBox leftPane = new VBox(20);
+        leftPane.setPadding(new Insets(20));
+        leftPane.getChildren().add(formCard);
 
-        grid.add(massLabel, 0, 0);
-        grid.add(massField, 1, 0);
-        grid.add(transLabel, 0, 1);
-        grid.add(transCombo, 1, 1);
-        grid.add(destLabel, 0, 2);
-        grid.add(destCombo, 1, 2);
-        grid.add(createButton, 1, 3);
+        VBox rightPane = new VBox(20);
+        rightPane.setPadding(new Insets(20));
+        rightPane.setStyle(StyleHelper.GLASS_PANEL);
 
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(20));
-        root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(titleLabel, grid, msgLabel, logoutButton);
-        root.setStyle("-fx-background-color: #2c3e50;");
+        Label tableTitle = new Label("My Dispatches");
+        tableTitle.setStyle(StyleHelper.HEADER_TEXT);
 
-        // Actions
-        createButton.setOnAction(e -> {
+        TableView<Dispatch> table = new TableView<>();
+        table.setStyle(StyleHelper.TABLE_STYLE);
+
+        TableColumn<Dispatch, Integer> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<Dispatch, Double> mCol = new TableColumn<>("Mass");
+        mCol.setCellValueFactory(new PropertyValueFactory<>("productMass"));
+        TableColumn<Dispatch, String> sCol = new TableColumn<>("Status");
+        sCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        table.getColumns().addAll(idCol, mCol, sCol);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        refreshTable(table);
+
+        rightPane.getChildren().addAll(tableTitle, table);
+
+        HBox mainLayout = new HBox(10);
+        mainLayout.setStyle(StyleHelper.MAIN_BG);
+        mainLayout.getChildren().addAll(leftPane, rightPane);
+        HBox.setHgrow(rightPane, javafx.scene.layout.Priority.ALWAYS);
+
+        submitButton.setOnAction(e -> {
             try {
-                double mass = Double.parseDouble(massField.getText());
-
+                String massText = massField.getText();
                 String transSelection = transCombo.getValue();
                 String destSelection = destCombo.getValue();
 
-                if (transSelection == null || destSelection == null) {
-                    msgLabel.setText("Please select Transporter and Destination.");
-                    msgLabel.setStyle("-fx-text-fill: red;");
+                if (massText.isEmpty() || transSelection == null || destSelection == null) {
+                    msgLabel.setText("Please fill all fields.");
+                    msgLabel.setStyle("-fx-text-fill: #ef4444;");
                     return;
                 }
 
+                double mass = Double.parseDouble(massText);
                 int transId = Integer.parseInt(transSelection.split(":")[0]);
                 int destId = Integer.parseInt(destSelection.split(":")[0]);
 
                 dispatchService.createDispatch(mass, currentUser.getId(), transId, destId);
                 msgLabel.setText("Dispatch Created Successfully!");
-                msgLabel.setStyle("-fx-text-fill: green;");
+                msgLabel.setStyle("-fx-text-fill: #22c55e;");
+                refreshTable(table);
 
                 // Clear fields
                 massField.clear();
@@ -109,19 +142,24 @@ public class SellerUI {
                 destCombo.getSelectionModel().clearSelection();
 
             } catch (NumberFormatException ex) {
-                msgLabel.setText("Invalid Mass. Please enter a number.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setText("Invalid mass value.");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
             } catch (Exception ex) {
                 msgLabel.setText("Error: " + ex.getMessage());
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 ex.printStackTrace();
             }
         });
 
         logoutButton.setOnAction(e -> new LoginUI().start(stage));
 
-        Scene scene = new Scene(root, 500, 400);
+        Scene scene = new Scene(mainLayout, 1000, 700);
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void refreshTable(TableView<Dispatch> table) {
+        table.setItems(FXCollections.observableArrayList(
+                dispatchService.getDispatchesForUser("Seller", currentUser.getId())));
     }
 }

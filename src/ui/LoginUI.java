@@ -6,7 +6,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -18,46 +17,48 @@ public class LoginUI {
         primaryStage.setTitle("Dispatch System - Login");
 
         // UI Components
-        Label titleLabel = new Label("Dispatch Management System");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 10;");
+        Label titleLabel = new Label("COAL DISPATCH");
+        titleLabel.setStyle(StyleHelper.TITLE_TEXT);
 
-        Label userLabel = new Label("Username:");
-        userLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label subtitleLabel = new Label("Management System");
+        subtitleLabel.setStyle(StyleHelper.NORMAL_TEXT);
+
+        Label userLabel = new Label("Username");
+        userLabel.setStyle(StyleHelper.LABEL_STYLE);
         TextField userField = new TextField();
-        userField.setStyle("-fx-background-radius: 5; -fx-padding: 8;");
+        userField.setPromptText("Enter your username");
+        userField.setStyle(StyleHelper.TEXT_FIELD);
 
-        Label passLabel = new Label("Password:");
-        passLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label passLabel = new Label("Password");
+        passLabel.setStyle(StyleHelper.LABEL_STYLE);
         PasswordField passField = new PasswordField();
-        passField.setStyle("-fx-background-radius: 5; -fx-padding: 8;");
+        passField.setPromptText("Enter your password");
+        passField.setStyle(StyleHelper.TEXT_FIELD);
 
         Label msgLabel = new Label();
-        msgLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        msgLabel.setStyle("-fx-text-fill: #ef4444;");
 
         Button loginButton = new Button("Login");
-        loginButton.setStyle(
-                "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 30; -fx-background-radius: 20;");
+        loginButton.setStyle(StyleHelper.BUTTON_PRIMARY);
+        loginButton.setMaxWidth(Double.MAX_VALUE);
 
-        Button signupButton = new Button("Sign Up");
-        signupButton.setStyle(
-                "-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-border-color: #3498db; -fx-border-radius: 20; -fx-padding: 8 20;");
+        Button signupButton = new Button("Create Account");
+        signupButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+        signupButton.setMaxWidth(Double.MAX_VALUE);
 
-        // Layout
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        // Form Layout (Glass Panel)
+        VBox formCard = new VBox(15);
+        formCard.setStyle(StyleHelper.GLASS_PANEL);
+        formCard.setPrefWidth(350);
+        formCard.setMaxWidth(350);
+        formCard.getChildren().addAll(userLabel, userField, passLabel, passField, loginButton, signupButton, msgLabel);
 
-        grid.add(userLabel, 0, 1);
-        grid.add(userField, 1, 1);
-        grid.add(passLabel, 0, 2);
-        grid.add(passField, 1, 2);
-
-        VBox root = new VBox(20);
+        VBox root = new VBox(25);
         root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(titleLabel, grid, loginButton, signupButton, msgLabel);
-        root.setStyle("-fx-background-color: linear-gradient(to bottom right, #2c3e50, #000000);");
+        root.setStyle(StyleHelper.MAIN_BG);
+        root.setPadding(new Insets(40));
+        root.getChildren().addAll(new VBox(5, titleLabel, subtitleLabel), formCard);
+        ((VBox) root.getChildren().get(0)).setAlignment(Pos.CENTER);
 
         // Event Handling
         loginButton.setOnAction(e -> {
@@ -81,7 +82,7 @@ public class LoginUI {
 
         signupButton.setOnAction(e -> showSignupScreen(primaryStage));
 
-        Scene scene = new Scene(root, 400, 350);
+        Scene scene = new Scene(root, 500, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -89,30 +90,31 @@ public class LoginUI {
     private void showSignupScreen(Stage stage) {
         stage.setTitle("Dispatch System - Sign Up");
 
-        Label titleLabel = new Label("Create New Account");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;");
+        Label titleLabel = new Label("Join the System");
+        titleLabel.setStyle(StyleHelper.TITLE_TEXT);
 
-        Label userLabel = new Label("Username:");
-        userLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label userLabel = new Label("Username");
+        userLabel.setStyle(StyleHelper.LABEL_STYLE);
         TextField userField = new TextField();
-        userField.setStyle("-fx-background-radius: 5; -fx-padding: 8;");
+        userField.setStyle(StyleHelper.TEXT_FIELD);
 
-        Label passLabel = new Label("Password:");
-        passLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label passLabel = new Label("Password");
+        passLabel.setStyle(StyleHelper.LABEL_STYLE);
         PasswordField passField = new PasswordField();
-        passField.setStyle("-fx-background-radius: 5; -fx-padding: 8;");
+        passField.setStyle(StyleHelper.TEXT_FIELD);
 
-        Label roleLabel = new Label("Role:");
-        roleLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label roleLabel = new Label("Role");
+        roleLabel.setStyle(StyleHelper.LABEL_STYLE);
         ComboBox<String> roleBox = new ComboBox<>();
         roleBox.getItems().addAll("Seller", "Transporter", "Destination", "Admin");
         roleBox.setValue("Seller");
-        roleBox.setStyle("-fx-background-radius: 5;");
+        roleBox.setStyle(StyleHelper.TEXT_FIELD);
+        roleBox.setMaxWidth(Double.MAX_VALUE);
 
-        Label secretLabel = new Label("Admin Code:");
-        secretLabel.setStyle("-fx-text-fill: #ecf0f1;");
+        Label secretLabel = new Label("Admin Code");
+        secretLabel.setStyle(StyleHelper.LABEL_STYLE);
         PasswordField secretField = new PasswordField();
-        secretField.setStyle("-fx-background-radius: 5; -fx-padding: 8;");
+        secretField.setStyle(StyleHelper.TEXT_FIELD);
         secretLabel.setVisible(false);
         secretField.setVisible(false);
 
@@ -122,35 +124,27 @@ public class LoginUI {
             secretField.setVisible(isAdmin);
         });
 
-        Button registerButton = new Button("Register");
-        registerButton.setStyle(
-                "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 30; -fx-background-radius: 20;");
+        Button registerButton = new Button("Register Now");
+        registerButton.setStyle(StyleHelper.BUTTON_PRIMARY);
+        registerButton.setMaxWidth(Double.MAX_VALUE);
 
         Button backButton = new Button("Back to Login");
-        backButton.setStyle(
-                "-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 20;");
+        backButton.setStyle(StyleHelper.BUTTON_SECONDARY);
+        backButton.setMaxWidth(Double.MAX_VALUE);
 
         Label msgLabel = new Label();
 
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20));
+        VBox formCard = new VBox(12);
+        formCard.setStyle(StyleHelper.GLASS_PANEL);
+        formCard.setPrefWidth(350);
+        formCard.getChildren().addAll(userLabel, userField, passLabel, passField, roleLabel, roleBox, secretLabel,
+                secretField, registerButton, backButton, msgLabel);
 
-        grid.add(userLabel, 0, 0);
-        grid.add(userField, 1, 0);
-        grid.add(passLabel, 0, 1);
-        grid.add(passField, 1, 1);
-        grid.add(roleLabel, 0, 2);
-        grid.add(roleBox, 1, 2);
-        grid.add(secretLabel, 0, 3);
-        grid.add(secretField, 1, 3);
-
-        VBox root = new VBox(15);
+        VBox root = new VBox(25);
         root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(titleLabel, grid, registerButton, backButton, msgLabel);
-        root.setStyle("-fx-background-color: linear-gradient(to bottom right, #2c3e50, #000000);");
+        root.setStyle(StyleHelper.MAIN_BG);
+        root.setPadding(new Insets(40));
+        root.getChildren().addAll(titleLabel, formCard);
 
         registerButton.setOnAction(e -> {
             String username = userField.getText();
@@ -159,21 +153,21 @@ public class LoginUI {
 
             if (username.isEmpty() || password.isEmpty()) {
                 msgLabel.setText("Fill all fields.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
             if ("Admin".equals(role)) {
                 if (!"1$isbester".equals(secretField.getText())) {
                     msgLabel.setText("Invalid Admin Code.");
-                    msgLabel.setStyle("-fx-text-fill: red;");
+                    msgLabel.setStyle("-fx-text-fill: #ef4444;");
                     return;
                 }
             }
 
             if (userDAO.isUsernameTaken(username)) {
                 msgLabel.setText("Username already exists.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
                 return;
             }
 
@@ -197,16 +191,16 @@ public class LoginUI {
 
             if (userDAO.register(newUser)) {
                 msgLabel.setText("Registration Successful!");
-                msgLabel.setStyle("-fx-text-fill: green;");
+                msgLabel.setStyle("-fx-text-fill: #22c55e;");
             } else {
                 msgLabel.setText("Registration failed.");
-                msgLabel.setStyle("-fx-text-fill: red;");
+                msgLabel.setStyle("-fx-text-fill: #ef4444;");
             }
         });
 
         backButton.setOnAction(e -> start(stage));
 
-        Scene scene = new Scene(root, 400, 450);
+        Scene scene = new Scene(root, 500, 700);
         stage.setScene(scene);
     }
 
