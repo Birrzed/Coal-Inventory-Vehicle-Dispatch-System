@@ -1,6 +1,5 @@
 package service;
 
-import model.Dispatch;
 import model.Payment;
 import java.util.List;
 
@@ -9,7 +8,7 @@ public interface PaymentService {
 
     List<Payment> getAllPayments();
 
-    void confirmPaymentReceipt(int paymentId);
+    List<Payment> getPaymentsForTransporter(int transporterId);
 
-    List<Payment> getTransporterPayments(int transporterId);
+    void confirmPaymentReceipt(int paymentId);
 }

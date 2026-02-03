@@ -10,6 +10,10 @@ public interface DispatchService {
 
     void confirmArrival(int dispatchId);
 
+    void deleteDispatch(int id);
+
+    void disapproveDispatch(int id);
+
     List<Dispatch> getDispatchesForUser(String role, int userId);
 
     List<Dispatch> getAllDispatches();
