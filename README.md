@@ -148,4 +148,4 @@ Biruk Zewdu-------------------- UGR/9623/17
 Obsera Ayele------------------- UGR/8067/17
 Ribka G.medhin---------------  UGR/8057/17
 Yeabsira Ayele-----------------  UGR/6645/17
-Yasir Hamza--------------------  UGR/4999/17
+Yassir Hamza--------------------  UGR/4999/17
